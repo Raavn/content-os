@@ -1,5 +1,7 @@
 'use client'
 
+import { FieldLabel } from '@/components/field-label'
+
 interface ContentInputProps {
   label: string
   value: string
@@ -11,9 +13,7 @@ interface ContentInputProps {
 export function ContentInput({ label, value, onChange, placeholder, rows = 10 }: ContentInputProps) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-bold uppercase tracking-widest text-brand-pink">
-        {label}
-      </label>
+      <FieldLabel>{label}</FieldLabel>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}

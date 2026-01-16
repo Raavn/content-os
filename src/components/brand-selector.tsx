@@ -1,6 +1,7 @@
 'use client'
 
 import { Brand } from '@prisma/client'
+import { FieldLabel } from '@/components/field-label'
 
 interface BrandSelectorProps {
   brands: Brand[]
@@ -11,9 +12,7 @@ interface BrandSelectorProps {
 export function BrandSelector({ brands, selectedBrandId, onSelect }: BrandSelectorProps) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-bold uppercase tracking-widest text-brand-pink">
-        Select Brand
-      </label>
+      <FieldLabel>Select Brand</FieldLabel>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {brands.map((brand) => (
           <button

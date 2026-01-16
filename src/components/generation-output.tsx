@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
+import { FieldLabel } from '@/components/field-label'
 
 interface GenerationOutputProps {
   label: string
@@ -22,9 +23,7 @@ export function GenerationOutput({ label, content }: GenerationOutputProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-bold uppercase tracking-widest text-brand-pink">
-          {label}
-        </label>
+        <FieldLabel>{label}</FieldLabel>
         <button
           onClick={handleCopy}
           className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-brand-pink text-brand-black px-4 py-2 hover:bg-highlight transition-colors"

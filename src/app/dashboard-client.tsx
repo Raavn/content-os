@@ -5,10 +5,34 @@ import { Brand } from '@prisma/client'
 import { BrandSelector } from '@/components/brand-selector'
 import { ContentInput } from '@/components/content-input'
 import { GenerationOutput } from '@/components/generation-output'
-import { Loader2, Plus, Share2 } from 'lucide-react'
+import { ActionButton } from '@/components/action-button'
+import { Plus, Share2 } from 'lucide-react'
 
 interface DashboardClientProps {
   initialBrands: Brand[]
+}
+
+type GenerationType = 'BLOG' | 'THREAD'
+
+async function requestGeneration(payload: {
+  brandId: string
+  type: GenerationType
+  brief?: string
+  blogContent?: string
+}) {
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || 'Generation failed')
+  }
+
+  return data.output as string
 }
 
 export function DashboardClient({ initialBrands }: DashboardClientProps) {
@@ -26,15 +50,8 @@ export function DashboardClient({ initialBrands }: DashboardClientProps) {
     setSocialOutput('')
 
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brandId: selectedBrandId, type: 'BLOG', brief }),
-      })
-      const data = await res.json()
-      if (data.output) {
-        setBlogOutput(data.output)
-      }
+      const output = await requestGeneration({ brandId: selectedBrandId, type: 'BLOG', brief })
+      setBlogOutput(output)
     } catch (error) {
       console.error(error)
     } finally {
@@ -48,15 +65,12 @@ export function DashboardClient({ initialBrands }: DashboardClientProps) {
     setIsGenerating(true)
 
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brandId: selectedBrandId, type: 'THREAD', blogContent: blogOutput }),
+      const output = await requestGeneration({
+        brandId: selectedBrandId,
+        type: 'THREAD',
+        blogContent: blogOutput,
       })
-      const data = await res.json()
-      if (data.output) {
-        setSocialOutput(data.output)
-      }
+      setSocialOutput(output)
     } catch (error) {
       console.error(error)
     } finally {
@@ -81,18 +95,15 @@ export function DashboardClient({ initialBrands }: DashboardClientProps) {
         />
 
         <div className="flex justify-end">
-          <button
+          <ActionButton
             onClick={handleGenerateBlog}
             disabled={isGenerating || !brief}
-            className="flex items-center gap-2 bg-brand-pink text-brand-black px-8 py-4 font-black uppercase tracking-widest hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-          >
-            {isGenerating ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Plus />
-            )}
-            {isGenerating ? 'Generating...' : 'Generate Blog'}
-          </button>
+            isLoading={isGenerating}
+            icon={<Plus />}
+            idleText="Generate Blog"
+            loadingText="Generating..."
+            className="bg-brand-pink text-brand-black"
+          />
         </div>
       </div>
 
@@ -101,18 +112,15 @@ export function DashboardClient({ initialBrands }: DashboardClientProps) {
           <GenerationOutput label="Generated Blog" content={blogOutput} />
           
           <div className="flex justify-end">
-            <button
+            <ActionButton
               onClick={handleGenerateSocial}
               disabled={isGenerating}
-              className="flex items-center gap-2 bg-neutral-0 text-brand-black px-8 py-4 font-black uppercase tracking-widest hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-            >
-              {isGenerating ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Share2 />
-              )}
-              {isGenerating ? 'Generating...' : 'Generate Social Posts'}
-            </button>
+              isLoading={isGenerating}
+              icon={<Share2 />}
+              idleText="Generate Social Posts"
+              loadingText="Generating..."
+              className="bg-neutral-0 text-brand-black"
+            />
           </div>
         </div>
       )}
