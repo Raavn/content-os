@@ -2,8 +2,33 @@ import { google } from '@ai-sdk/google'
 import { generateText } from 'ai'
 import fs from 'fs'
 import path from 'path'
+import { anthropicGenerateText } from './anthropic'
 
-const MODEL = 'gemini-1.5-flash' // Using a stable model name
+const DEFAULT_GOOGLE_MODEL = 'gemini-1.5-flash'
+
+function resolveAiProvider(): 'google' | 'anthropic' {
+  const explicit = (process.env.AI_PROVIDER ?? '').toLowerCase()
+  if (explicit === 'google' || explicit === 'anthropic') return explicit
+  if (process.env.ANTHROPIC_API_KEY) return 'anthropic'
+  return 'google'
+}
+
+async function generateWithProvider(prompt: string, { maxTokens }: { maxTokens: number }) {
+  const provider = resolveAiProvider()
+
+  if (provider === 'anthropic') {
+    const model = process.env.ANTHROPIC_MODEL || 'claude-opus-4-5-20251101'
+    const { text } = await anthropicGenerateText({ prompt, maxTokens, model })
+    return text
+  }
+
+  const model = process.env.GOOGLE_MODEL || DEFAULT_GOOGLE_MODEL
+  const { text } = await generateText({
+    model: google(model),
+    prompt,
+  })
+  return text
+}
 
 export async function getStyleCorpus() {
   const corpusDir = path.join(process.cwd(), 'src/corpus')
@@ -64,12 +89,7 @@ INSTRUCTIONS:
 OUTPUT (Markdown only):
 `
 
-  const { text } = await generateText({
-    model: google(MODEL),
-    prompt,
-  })
-
-  return text
+  return generateWithProvider(prompt, { maxTokens: 4096 })
 }
 
 export async function generateThread({
@@ -105,10 +125,5 @@ INSTRUCTIONS:
 OUTPUT (Markdown only):
 `
 
-  const { text } = await generateText({
-    model: google(MODEL),
-    prompt,
-  })
-
-  return text
+  return generateWithProvider(prompt, { maxTokens: 1024 })
 }

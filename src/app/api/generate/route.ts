@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { generateBlog, generateThread } from '@/lib/ai/engine'
+import { auth } from '@/lib/auth'
 
 export async function POST(req: Request) {
   try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { brandId, type, brief, blogContent } = await req.json()
 
     const brand = await prisma.brand.findUnique({
@@ -35,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     // Persist the generation
-    const generation = await prisma.generation.create({
+    await prisma.generation.create({
       data: {
         brandId,
         type,
@@ -44,9 +50,9 @@ export async function POST(req: Request) {
       },
     })
 
+    return NextResponse.json({ output })
   } catch (error) {
     console.error('Generation Error:', error)
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 })
   }
 }
-

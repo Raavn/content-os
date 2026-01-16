@@ -29,8 +29,56 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Usage Guide
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Content OS is designed to operationalize AI writing systems. It uses a **Brand-centric** approach and a **Style Corpus** to ensure consistent tone and voice.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 1. Requirements
+
+- **Database**: PostgreSQL (via Prisma).
+- **Auth**: Google OAuth (NextAuth v5) gated by an email allowlist.
+- **AI Engine**: Anthropic Claude Opus 4.5 (default when `ANTHROPIC_API_KEY` is set) or Google Gemini.
+- **Environment Variables** (see `.env.example`):
+  ```bash
+  DATABASE_URL="..."
+  NEXTAUTH_SECRET="..."
+  GOOGLE_CLIENT_ID="..."
+  GOOGLE_CLIENT_SECRET="..."
+  ALLOWED_EMAILS="you@example.com"
+  ANTHROPIC_API_KEY="..."
+  # or
+  GOOGLE_GENERATIVE_AI_API_KEY="..."
+  ```
+
+### 2. Branding & Tone
+
+The engine uses two layers for tone control:
+1.  **Brand System Prompt**: The specific "lens" or personality for a brand (e.g., "Professional Music Critic").
+2.  **Writing Style Corpus**: Markdown files located in `src/corpus/`. The AI analyzes these files to extrapolate your specific writing style (sentence structure, formatting, etc.).
+
+### 3. Workflow
+
+1.  **Select a Brand**: Choose from the brands defined in your database.
+2.  **Input a Brief**: Paste your markdown skeleton or content brief.
+3.  **Generate Blog**: Receive a 500-1000 word blog post formatted in clean Markdown.
+4.  **Generate Social Posts**: Derive a Twitter/X thread or social post from the generated blog content.
+
+---
+
+## Deployment on Vercel
+
+When deploying to Vercel, follow these steps:
+
+### 1. Environment Variables
+Add `DATABASE_URL` and `GOOGLE_GENERATIVE_AI_API_KEY` in your Vercel Project Settings.
+
+### 2. Database Initialization
+Since the UI does not yet support brand creation, you must seed your database with at least one brand to get started.
+
+Run the following command locally (pointing to your production database) or via a CI/CD pipeline:
+```bash
+npx prisma db seed
+```
+
+### 3. Build & Deploy
+Vercel will automatically handle the `next build` and deployment. If you see a warning about workspace root inference, it is safe to ignore as long as the build succeeds.

@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { DashboardClient } from './dashboard-client'
+import { DashboardClient } from '../dashboard-client'
 
 export default async function Page() {
   const brands = await prisma.brand.findMany({
@@ -7,7 +7,7 @@ export default async function Page() {
   })
 
   return (
-    <main className="min-h-screen p-8 max-w-5xl mx-auto flex flex-col gap-12">
+    <main className="p-8 max-w-5xl mx-auto flex flex-col gap-12">
       <header className="flex flex-col gap-2">
         <h1 className="text-5xl font-black tracking-tighter uppercase italic text-brand-pink">
           Content OS
@@ -21,3 +21,4 @@ export default async function Page() {
     </main>
   )
 }
+
