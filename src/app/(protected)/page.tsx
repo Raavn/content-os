@@ -1,7 +1,11 @@
 import prisma from '@/lib/db'
 import { DashboardClient } from '../dashboard-client'
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: { brandId?: string }
+}) {
   const brands = await prisma.brand.findMany({
     orderBy: { name: 'asc' },
   })
@@ -17,8 +21,10 @@ export default async function Page() {
         </p>
       </header>
 
-      <DashboardClient initialBrands={brands} />
+      <DashboardClient
+        initialBrands={brands}
+        initialSelectedBrandId={searchParams?.brandId}
+      />
     </main>
   )
 }
-
