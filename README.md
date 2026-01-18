@@ -48,6 +48,8 @@ Content OS is designed to operationalize AI writing systems. It uses a **Brand-c
   ANTHROPIC_API_KEY="..."
   # or
   GOOGLE_GENERATIVE_AI_API_KEY="..."
+  # Optional: pricing config used by /usage
+  # LLM_PRICING_JSON='{"model-name":{"input":0.000001,"output":0.000002}}'
   ```
 
 ### 2. Branding & Tone

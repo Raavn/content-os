@@ -88,13 +88,21 @@ export function DashboardClient({ initialBrands, initialSelectedBrandId }: Dashb
         <h2 className="text-2xl font-black uppercase tracking-tight text-neutral-0">
           Brands
         </h2>
-        <Link
-          href="/brands/new"
-          className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest border-4 border-brand-black bg-neutral-0 text-brand-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all hover:scale-105 active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          New Brand
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/usage"
+            className="inline-flex items-center gap-2 px-5 py-2 font-black uppercase tracking-widest border-4 border-brand-black bg-brand-pink text-brand-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all hover:scale-105 active:scale-95"
+          >
+            Usage
+          </Link>
+          <Link
+            href="/brands/new"
+            className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-widest border-4 border-brand-black bg-neutral-0 text-brand-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all hover:scale-105 active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            New Brand
+          </Link>
+        </div>
       </div>
 
       {initialBrands.length > 0 ? (

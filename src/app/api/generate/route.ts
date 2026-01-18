@@ -21,21 +21,26 @@ export async function POST(req: Request) {
     }
 
     let output = ''
+    let usage = null as null | { model: string; inputTokens: number; outputTokens: number }
 
     if (type === 'BLOG') {
       if (!brief) return NextResponse.json({ error: 'Brief is required' }, { status: 400 })
-      output = await generateBlog({
+      const result = await generateBlog({
         brandName: brand.name,
         systemPrompt: brand.systemPrompt,
         brief,
       })
+      output = result.text
+      usage = result.usage
     } else if (type === 'THREAD') {
       if (!blogContent) return NextResponse.json({ error: 'Blog content is required' }, { status: 400 })
-      output = await generateThread({
+      const result = await generateThread({
         brandName: brand.name,
         systemPrompt: brand.systemPrompt,
         blogContent,
       })
+      output = result.text
+      usage = result.usage
     } else {
       return NextResponse.json({ error: 'Invalid generation type' }, { status: 400 })
     }
@@ -47,6 +52,17 @@ export async function POST(req: Request) {
         type,
         brief: brief || '',
         output,
+        llmUsages: usage
+          ? {
+              create: {
+                brandId,
+                interactionType: type.toLowerCase(),
+                model: usage.model,
+                inputTokens: usage.inputTokens,
+                outputTokens: usage.outputTokens,
+              },
+            }
+          : undefined,
       },
     })
 

@@ -18,17 +18,36 @@ model Brand {
   name         String       @unique
   systemPrompt String       @db.Text
   generations  Generation[]
+  llmUsages    LlmUsage[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
 
 model Generation {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   brandId   String
-  brand     Brand    @relation(fields: [brandId], references: [id])
-  type      String   // "BLOG" | "THREAD"
-  brief     String   @db.Text
-  output    String   @db.Text
-  createdAt DateTime @default(now())
+  brand     Brand      @relation(fields: [brandId], references: [id])
+  type      String     // "BLOG" | "THREAD"
+  brief     String     @db.Text
+  output    String     @db.Text
+  createdAt DateTime   @default(now())
+  llmUsages LlmUsage[]
+
+  @@index([brandId])
 }
 
+model LlmUsage {
+  id              String     @id @default(cuid())
+  generationId    String
+  generation      Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  brandId         String
+  brand           Brand      @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  interactionType String     // blog | thread
+  model           String
+  inputTokens     Int
+  outputTokens    Int
+  createdAt       DateTime   @default(now())
+
+  @@index([generationId])
+  @@index([brandId])
+}

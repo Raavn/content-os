@@ -13,21 +13,44 @@ function resolveAiProvider(): 'google' | 'anthropic' {
   return 'google'
 }
 
-async function generateWithProvider(prompt: string, { maxTokens }: { maxTokens: number }) {
+export type LlmUsageResult = {
+  model: string
+  inputTokens: number
+  outputTokens: number
+}
+
+async function generateWithProvider(
+  prompt: string,
+  { maxTokens }: { maxTokens: number }
+): Promise<{ text: string; usage: LlmUsageResult }> {
   const provider = resolveAiProvider()
 
   if (provider === 'anthropic') {
     const model = process.env.ANTHROPIC_MODEL || 'claude-opus-4-5-20251101'
-    const { text } = await anthropicGenerateText({ prompt, maxTokens, model })
-    return text
+    const { text, usage } = await anthropicGenerateText({ prompt, maxTokens, model })
+    return {
+      text,
+      usage: {
+        model,
+        inputTokens: usage?.input_tokens ?? 0,
+        outputTokens: usage?.output_tokens ?? 0,
+      },
+    }
   }
 
   const model = process.env.GOOGLE_MODEL || DEFAULT_GOOGLE_MODEL
-  const { text } = await generateText({
+  const { text, usage } = await generateText({
     model: google(model),
     prompt,
   })
-  return text
+  return {
+    text,
+    usage: {
+      model,
+      inputTokens: usage?.inputTokens ?? 0,
+      outputTokens: usage?.outputTokens ?? 0,
+    },
+  }
 }
 
 export async function getStyleCorpus() {
